@@ -162,7 +162,7 @@ export default class Editor {
     this.insertHorizontalRule = this.wrapCommand(() => {
       const hrNode = this.createRange().insertNode(dom.create('HR'));
       if (hrNode.nextSibling) {
-        range.create(hrNode.nextSibling, 0).normalize().select();
+        range.create(hrNode.nextSibling, 0).normalize().select().scrollIntoView(this.editable);
       }
     });
 
