@@ -5,7 +5,7 @@
  * Copyright 2013- Alan Hong. and other contributors
  * summernote may be freely distributed under the MIT license.
  *
- * Date: 2018-02-20T00:34Z
+ * Date: 2018-06-22T07:24Z
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('jquery')) :
@@ -658,7 +658,7 @@ var isEdge = /Edge\/\d+/.test(userAgent);
 var hasCodeMirror = !!window.CodeMirror;
 if (!hasCodeMirror && isSupportAmd) {
     // Webpack
-    if (typeof __webpack_require__ === 'function') {
+    if (typeof __webpack_require__ === 'function') { // eslint-disable-line
         try {
             // If CodeMirror can't be resolved, `require.resolve` will throw an
             // exception and `hasCodeMirror` won't be set to `true`.
@@ -2490,7 +2490,7 @@ var range = {
         if (arguments.length === 4) {
             return new WrappedRange(sc, so, ec, eo);
         }
-        else if (arguments.length === 2) {
+        else if (arguments.length === 2) { // collapsed
             ec = sc;
             eo = so;
             return new WrappedRange(sc, so, ec, eo);
@@ -2522,7 +2522,7 @@ var range = {
             ec = nativeRng.endContainer;
             eo = nativeRng.endOffset;
         }
-        else {
+        else { // IE8: TextRange
             var textRange = document.selection.createRange();
             var textRangeEnd = textRange.duplicate();
             textRangeEnd.collapse(false);
@@ -3832,7 +3832,7 @@ var Editor = /** @class */ (function () {
         this.insertHorizontalRule = this.wrapCommand(function () {
             var hrNode = _this.createRange().insertNode(dom.create('HR'));
             if (hrNode.nextSibling) {
-                range.create(hrNode.nextSibling, 0).normalize().select();
+                range.create(hrNode.nextSibling, 0).normalize().select().scrollIntoView(_this.editable);
             }
         });
         /**
@@ -4487,7 +4487,8 @@ var Clipboard = /** @class */ (function () {
     Clipboard.prototype.pasteByEvent = function (event) {
         var clipboardData = event.originalEvent.clipboardData;
         if (clipboardData && clipboardData.items && clipboardData.items.length) {
-            var item = lists.head(clipboardData.items);
+            // paste img file
+            var item = clipboardData.items.length > 1 ? clipboardData.items[1] : lists.head(clipboardData.items);
             if (item.kind === 'file' && item.type.indexOf('image/') !== -1) {
                 this.context.invoke('editor.insertImagesOrCallback', [item.getAsFile()]);
             }
@@ -4857,7 +4858,7 @@ var Handle = /** @class */ (function () {
                     _this.$document.off('mousemove', onMouseMove_1);
                     _this.context.invoke('editor.afterCommand');
                 });
-                if (!$target_1.data('ratio')) {
+                if (!$target_1.data('ratio')) { // original ratio.
                     $target_1.data('ratio', $target_1.height() / $target_1.width());
                 }
             }
@@ -6148,10 +6149,10 @@ var ImageDialog = /** @class */ (function () {
             // [workaround] hide dialog before restore range for IE range focus
             _this.ui.hideDialog(_this.$dialog);
             _this.context.invoke('editor.restoreRange');
-            if (typeof data === 'string') {
+            if (typeof data === 'string') { // image url
                 _this.context.invoke('editor.insertImage', data);
             }
-            else {
+            else { // array of files
                 _this.context.invoke('editor.insertImagesOrCallback', data);
             }
         }).fail(function () {
